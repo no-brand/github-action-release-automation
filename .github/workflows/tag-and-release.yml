@@ -106,13 +106,16 @@ jobs:
           REVISION="${TAG_NAME##*-}"
           CHANGED_FILES="${{ needs.setup.outputs.changed_files }}"
           
-          # Create the table header for description
-          DESCRIPTION="Ontology Release: ${TAG_NAME}\nDate: ${TODAY}\nRevision: ${REVISION}\n\nOntology Files:\n"
-          DESCRIPTION="${DESCRIPTION}| Sub-project | Path | Filename | Size (bytes) | Changed |\n"
-          DESCRIPTION="${DESCRIPTION}|-------------|------|----------|--------------|--------|\n"
-          
-          # Create directory for artifacts
-          mkdir -p "release-artifacts/${SUB_PROJECT}"
+          # Create the table header for description using proper heredoc
+          cat > release-description.md << EOL
+          Ontology Release: ${TAG_NAME}
+          Date: ${TODAY}
+          Revision: ${REVISION}
+
+          Ontology Files:
+          | Sub-project | Path | Filename | Size (bytes) | Changed |
+          |-------------|------|----------|--------------|---------|
+          EOL
           
           # Process each ontology file
           while IFS= read -r FILE; do
@@ -130,8 +133,8 @@ jobs:
               CHANGED="❌"
             fi
             
-            # Add to description
-            DESCRIPTION="${DESCRIPTION}| ${SUB_PROJECT} | ${REL_PATH} | ${FILENAME} | ${SIZE} | ${CHANGED} |\n"
+            # Add to description using >> to append
+            echo "| ${SUB_PROJECT} | ${REL_PATH} | ${FILENAME} | ${SIZE} | ${CHANGED} |" >> release-description.md
             
             # Copy file to artifacts directory preserving directory structure
             mkdir -p "release-artifacts/${SUB_PROJECT}/${REL_PATH}"
@@ -139,14 +142,14 @@ jobs:
           done <<< "${{ steps.find-files.outputs.ontology_files }}"
           
           # Add note
-          DESCRIPTION="${DESCRIPTION}\nNote: Files marked with ✅ were changed in this PR."
+          echo "" >> release-description.md
+          echo "Note: Files marked with ✅ were changed in this PR." >> release-description.md
           
           # Create zip archive
           (cd release-artifacts && zip -r "../${SUB_PROJECT}-ontology.zip" "${SUB_PROJECT}")
           
-          # Save description to file and output
-          echo "$DESCRIPTION" > release-description.txt
-          echo "description_file=release-description.txt" >> $GITHUB_OUTPUT
+          # Save output
+          echo "description_file=release-description.md" >> $GITHUB_OUTPUT
           echo "zip_path=${SUB_PROJECT}-ontology.zip" >> $GITHUB_OUTPUT
       
       - name: Prepare empty release description
@@ -154,9 +157,8 @@ jobs:
         id: empty-description
         run: |
           SUB_PROJECT="${{ matrix.subproject }}"
-          DESCRIPTION="No ontology files found in ${SUB_PROJECT}"
-          echo "$DESCRIPTION" > empty-description.txt
-          echo "description_file=empty-description.txt" >> $GITHUB_OUTPUT
+          echo "No ontology files found in ${SUB_PROJECT}" > empty-description.md
+          echo "description_file=empty-description.md" >> $GITHUB_OUTPUT
       
       - name: Create tag and push
         run: |
