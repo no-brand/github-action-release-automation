@@ -38,11 +38,11 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
           
           # Extract unique top-level directories (sub-projects)
-          SUBPROJECTS=$(echo "$CHANGED_FILES" | grep -v "^\.github" | awk -F/ '{print $1}' | sort | uniq)
+          SUBPROJECTS=$(echo "$CHANGED_FILES" | grep -v "^\.github" | awk -F/ '{print $1}' | sort | uniq | tr '\n' ',' | sed 's/,$//')
           
           # Set output
-          echo "subprojects=$SUBPROJECTS" >> $GITHUB_OUTPUT
-          echo "Changed sub-projects: $SUBPROJECTS"
+          echo "subprojects=${SUBPROJECTS}" >> $GITHUB_OUTPUT
+          echo "Changed sub-projects: ${SUBPROJECTS}"
 
   process-subprojects:
     needs: setup
@@ -50,7 +50,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        subproject: ${{ fromJson(format('[{0}]', needs.setup.outputs.subprojects)) }}
+        subproject: ${{ split(needs.setup.outputs.subprojects, ',') }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
