@@ -1,0 +1,181 @@
+name: Ontology Tag and Release
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  setup:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    outputs:
+      subprojects: ${{ steps.identify-changes.outputs.subprojects }}
+      changed_files: ${{ steps.identify-changes.outputs.changed_files }}
+      today: ${{ steps.set-date.outputs.today }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          
+      - name: Set date
+        id: set-date
+        run: echo "today=$(date +%Y%m%d)" >> $GITHUB_OUTPUT
+          
+      - name: Identify changed sub-projects
+        id: identify-changes
+        run: |
+          # Get list of files changed in the PR
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
+          echo "changed_files<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          # Extract unique top-level directories (sub-projects)
+          SUBPROJECTS=$(echo "$CHANGED_FILES" | grep -v "^\.github" | awk -F/ '{print $1}' | sort | uniq)
+          
+          # Set output
+          echo "subprojects=$SUBPROJECTS" >> $GITHUB_OUTPUT
+          echo "Changed sub-projects: $SUBPROJECTS"
+
+  process-subprojects:
+    needs: setup
+    if: ${{ needs.setup.outputs.subprojects != '' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        subproject: ${{ fromJson(format('[{0}]', needs.setup.outputs.subprojects)) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Git
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+      
+      - name: Create tag for ${{ matrix.subproject }}
+        id: create-tag
+        run: |
+          # Set variables
+          SUB_PROJECT="${{ matrix.subproject }}"
+          TODAY="${{ needs.setup.outputs.today }}"
+          
+          # Count existing tags with the same prefix
+          PREFIX="v${SUB_PROJECT}-${TODAY}-"
+          TAG_COUNT=$(git tag -l "${PREFIX}*" | wc -l)
+          REVISION=$((TAG_COUNT + 1))
+          
+          # Create tag name
+          TAG_NAME="${PREFIX}${REVISION}"
+          echo "tag_name=${TAG_NAME}" >> $GITHUB_OUTPUT
+      
+      - name: Find ontology files
+        id: find-files
+        run: |
+          SUB_PROJECT="${{ matrix.subproject }}"
+          
+          # Find all .ttl and .dlog files in the sub-project
+          ONTOLOGY_FILES=$(find "${SUB_PROJECT}" -type f \( -name "*.ttl" -o -name "*.dlog" \) | sort)
+          
+          if [ -n "$ONTOLOGY_FILES" ]; then
+            echo "has_files=true" >> $GITHUB_OUTPUT
+            echo "ontology_files<<EOF" >> $GITHUB_OUTPUT
+            echo "$ONTOLOGY_FILES" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "has_files=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Prepare release artifacts
+        if: steps.find-files.outputs.has_files == 'true'
+        id: prepare-artifacts
+        run: |
+          SUB_PROJECT="${{ matrix.subproject }}"
+          TAG_NAME="${{ steps.create-tag.outputs.tag_name }}"
+          TODAY="${{ needs.setup.outputs.today }}"
+          REVISION="${TAG_NAME##*-}"
+          CHANGED_FILES="${{ needs.setup.outputs.changed_files }}"
+          
+          # Create the table header for description
+          DESCRIPTION="Ontology Release: ${TAG_NAME}\nDate: ${TODAY}\nRevision: ${REVISION}\n\nOntology Files:\n"
+          DESCRIPTION="${DESCRIPTION}| Sub-project | Path | Filename | Size (bytes) | Changed |\n"
+          DESCRIPTION="${DESCRIPTION}|-------------|------|----------|--------------|--------|\n"
+          
+          # Create directory for artifacts
+          mkdir -p "release-artifacts/${SUB_PROJECT}"
+          
+          # Process each ontology file
+          while IFS= read -r FILE; do
+            FILENAME=$(basename "${FILE}")
+            REL_PATH=$(dirname "${FILE}" | sed "s|^${SUB_PROJECT}/\?||")
+            if [ "${REL_PATH}" = "" ]; then
+              REL_PATH="."
+            fi
+            SIZE=$(stat -c%s "${FILE}")
+            
+            # Check if file was changed
+            if echo "$CHANGED_FILES" | grep -q "${FILE}"; then
+              CHANGED="✅"
+            else
+              CHANGED="❌"
+            fi
+            
+            # Add to description
+            DESCRIPTION="${DESCRIPTION}| ${SUB_PROJECT} | ${REL_PATH} | ${FILENAME} | ${SIZE} | ${CHANGED} |\n"
+            
+            # Copy file to artifacts directory preserving directory structure
+            mkdir -p "release-artifacts/${SUB_PROJECT}/${REL_PATH}"
+            cp "${FILE}" "release-artifacts/${SUB_PROJECT}/${REL_PATH}/"
+          done <<< "${{ steps.find-files.outputs.ontology_files }}"
+          
+          # Add note
+          DESCRIPTION="${DESCRIPTION}\nNote: Files marked with ✅ were changed in this PR."
+          
+          # Create zip archive
+          (cd release-artifacts && zip -r "../${SUB_PROJECT}-ontology.zip" "${SUB_PROJECT}")
+          
+          # Save description to file and output
+          echo "$DESCRIPTION" > release-description.txt
+          echo "description_file=release-description.txt" >> $GITHUB_OUTPUT
+          echo "zip_path=${SUB_PROJECT}-ontology.zip" >> $GITHUB_OUTPUT
+      
+      - name: Prepare empty release description
+        if: steps.find-files.outputs.has_files != 'true'
+        id: empty-description
+        run: |
+          SUB_PROJECT="${{ matrix.subproject }}"
+          DESCRIPTION="No ontology files found in ${SUB_PROJECT}"
+          echo "$DESCRIPTION" > empty-description.txt
+          echo "description_file=empty-description.txt" >> $GITHUB_OUTPUT
+      
+      - name: Create tag and push
+        run: |
+          TAG_NAME="${{ steps.create-tag.outputs.tag_name }}"
+          git tag "${TAG_NAME}"
+          git push origin "${TAG_NAME}"
+      
+      - name: Create release with artifacts
+        if: steps.find-files.outputs.has_files == 'true'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.create-tag.outputs.tag_name }}
+          name: "Ontology Release ${{ steps.create-tag.outputs.tag_name }}"
+          body_path: ${{ steps.prepare-artifacts.outputs.description_file }}
+          files: ${{ steps.prepare-artifacts.outputs.zip_path }}
+      
+      - name: Create empty release
+        if: steps.find-files.outputs.has_files != 'true'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.create-tag.outputs.tag_name }}
+          name: "Ontology Release ${{ steps.create-tag.outputs.tag_name }}"
+          body_path: ${{ steps.empty-description.outputs.description_file }} 

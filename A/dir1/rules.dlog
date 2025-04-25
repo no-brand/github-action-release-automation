@@ -1,0 +1,23 @@
+// Sample Datalog rules for project A
+
+// Type definitions
+.type Person
+.type Project
+
+// Relations
+.decl works_on(p: Person, proj: Project)
+.decl manages(p1: Person, p2: Person)
+.decl project_member(p: Person, proj: Project)
+.decl project_manager(p: Person, proj: Project)
+
+// Rules
+project_member(P, PROJ) :- works_on(P, PROJ).
+
+// A project manager is someone who manages another person who works on the project
+project_manager(P1, PROJ) :- manages(P1, P2), works_on(P2, PROJ).
+
+// Sample data
+works_on("Alice", "OntologyA").
+works_on("Bob", "OntologyA").
+works_on("Charlie", "OntologyB").
+manages("Alice", "Bob"). 

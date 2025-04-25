@@ -1,0 +1,42 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <http://example.org/ontology/B#> .
+
+# Ontology Declaration
+:Ontology rdf:type owl:Ontology ;
+  rdfs:label "Sample Ontology B" ;
+  rdfs:comment "Example ontology for domain B" .
+
+# Classes
+:Organization rdf:type owl:Class ;
+  rdfs:label "Organization" ;
+  rdfs:comment "A company or institution" .
+
+:Product rdf:type owl:Class ;
+  rdfs:label "Product" ;
+  rdfs:comment "Something produced by an organization" .
+
+:Customer rdf:type owl:Class ;
+  rdfs:label "Customer" ;
+  rdfs:comment "An entity that purchases products" .
+
+# Properties
+:produces rdf:type owl:ObjectProperty ;
+  rdfs:domain :Organization ;
+  rdfs:range :Product ;
+  rdfs:label "produces" ;
+  rdfs:comment "Indicates an organization produces a product" .
+
+:purchases rdf:type owl:ObjectProperty ;
+  rdfs:domain :Customer ;
+  rdfs:range :Product ;
+  rdfs:label "purchases" ;
+  rdfs:comment "Indicates a customer purchases a product" .
+
+:hasValue rdf:type owl:DatatypeProperty ;
+  rdfs:domain :Product ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "has value" ;
+  rdfs:comment "The monetary value of a product" . 
