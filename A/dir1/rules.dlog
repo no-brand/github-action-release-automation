@@ -1,23 +1,53 @@
 // Sample Datalog rules for project A
+// Updated with additional rules and logic
 
 // Type definitions
 .type Person
 .type Project
+.type Organization
+.type Task
+.type Team
 
 // Relations
 .decl works_on(p: Person, proj: Project)
 .decl manages(p1: Person, p2: Person)
 .decl project_member(p: Person, proj: Project)
 .decl project_manager(p: Person, proj: Project)
+.decl member_of(p: Person, org: Organization)
+.decl assigned_to(p: Person, t: Task)
+.decl task_in_project(t: Task, proj: Project)
+.decl team_member(p: Person, team: Team)
+.decl team_leads(p: Person, team: Team)
+.decl task_priority(t: Task, priority: number)
+.decl task_status(t: Task, status: symbol)
 
-// Rules
+// Basic rules
 project_member(P, PROJ) :- works_on(P, PROJ).
 
 // A project manager is someone who manages another person who works on the project
 project_manager(P1, PROJ) :- manages(P1, P2), works_on(P2, PROJ).
 
+// If a person is assigned to a task in a project, they are a project member
+project_member(P, PROJ) :- assigned_to(P, T), task_in_project(T, PROJ).
+
+// Team leaders are considered project managers for all projects their team works on
+project_manager(P, PROJ) :- team_leads(P, TEAM), team_member(P2, TEAM), works_on(P2, PROJ).
+
+// High priority tasks (priority < 3) must have a designated manager
+task_status(T, "managed") :- task_priority(T, P), P < 3, task_in_project(T, PROJ), project_manager(M, PROJ).
+task_status(T, "needs_manager") :- task_priority(T, P), P < 3, task_in_project(T, PROJ), !project_manager(_, PROJ).
+
 // Sample data
 works_on("Alice", "OntologyA").
 works_on("Bob", "OntologyA").
 works_on("Charlie", "OntologyB").
-manages("Alice", "Bob"). 
+manages("Alice", "Bob").
+member_of("Alice", "ResearchLab").
+member_of("Bob", "University").
+member_of("Charlie", "ResearchLab").
+team_member("Alice", "OntologyTeam").
+team_member("Bob", "OntologyTeam").
+team_leads("Alice", "OntologyTeam").
+assigned_to("Bob", "Task1").
+task_in_project("Task1", "OntologyA").
+task_priority("Task1", 2). 

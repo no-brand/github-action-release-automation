@@ -1,0 +1,58 @@
+// B Project Integration Rules
+// This file defines the logical relationships between concepts in the B ontology
+
+// Type definitions
+.type Organization
+.type Product
+.type Customer
+.type Service
+
+// Relations
+.decl is_organization(org: Organization)
+.decl is_product(p: Product)
+.decl is_customer(c: Customer)
+.decl is_service(s: Service)
+.decl produces(org: Organization, p: Product)
+.decl purchases(c: Customer, p: Product)
+.decl subscribes_to(c: Customer, s: Service) 
+.decl has_subscription(c: Customer, s: Service, status: symbol)
+.decl is_premium_customer(c: Customer)
+.decl is_active_customer(c: Customer)
+.decl offers_promotion(org: Organization, p: Product)
+.decl customer_relationship(org: Organization, c: Customer, value: number)
+
+// Rules
+// A customer who subscribes to any service is an active customer
+is_active_customer(C) :- subscribes_to(C, _).
+
+// A customer who purchases more than one product is an active customer
+is_active_customer(C) :- purchases(C, P1), purchases(C, P2), P1 != P2.
+
+// Premium customers always have active subscriptions
+has_subscription(C, S, "active") :- is_premium_customer(C), subscribes_to(C, S).
+
+// Organizations offer promotions on their products
+offers_promotion(ORG, P) :- produces(ORG, P), is_product(P).
+
+// Customer relationship value calculation (example)
+customer_relationship(ORG, C, 100) :- produces(ORG, P), purchases(C, P), is_premium_customer(C).
+customer_relationship(ORG, C, 50) :- produces(ORG, P), purchases(C, P), !is_premium_customer(C).
+
+// Sample facts for testing
+is_organization("CompanyX").
+is_organization("CompanyY").
+is_product("ProductA").
+is_product("ProductB").
+is_product("ServiceC").
+is_service("ServiceC").
+is_customer("Customer1").
+is_customer("Customer2").
+is_premium_customer("Customer1").
+
+produces("CompanyX", "ProductA").
+produces("CompanyX", "ServiceC").
+produces("CompanyY", "ProductB").
+purchases("Customer1", "ProductA").
+purchases("Customer1", "ProductB").
+purchases("Customer2", "ProductA").
+subscribes_to("Customer1", "ServiceC"). 
