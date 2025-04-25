@@ -18,6 +18,10 @@
   rdfs:label "Project" ;
   rdfs:comment "A project or initiative" .
 
+:Organization rdf:type owl:Class ;
+  rdfs:label "Organization" ;
+  rdfs:comment "A company, institution, or other formal group" .
+
 # Properties
 :hasName rdf:type owl:DatatypeProperty ;
   rdfs:domain :Person ;
@@ -29,4 +33,16 @@
   rdfs:domain :Person ;
   rdfs:range :Project ;
   rdfs:label "works on" ;
-  rdfs:comment "Indicates a person works on a project" . 
+  rdfs:comment "Indicates a person works on a project" .
+  
+:memberOf rdf:type owl:ObjectProperty ;
+  rdfs:domain :Person ;
+  rdfs:range :Organization ;
+  rdfs:label "member of" ;
+  rdfs:comment "Indicates a person is a member of an organization" .
+
+:hasDescription rdf:type owl:DatatypeProperty ;
+  rdfs:domain owl:Thing ;
+  rdfs:range xsd:string ;
+  rdfs:label "has description" ;
+  rdfs:comment "A general description property that can apply to any entity" . 

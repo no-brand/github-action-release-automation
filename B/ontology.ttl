@@ -7,7 +7,8 @@
 # Ontology Declaration
 :Ontology rdf:type owl:Ontology ;
   rdfs:label "Sample Ontology B" ;
-  rdfs:comment "Example ontology for domain B" .
+  rdfs:comment "Example ontology for domain B" ;
+  owl:versionInfo "1.1.0" .
 
 # Classes
 :Organization rdf:type owl:Class ;
@@ -21,6 +22,16 @@
 :Customer rdf:type owl:Class ;
   rdfs:label "Customer" ;
   rdfs:comment "An entity that purchases products" .
+
+:Service rdf:type owl:Class ;
+  rdfs:label "Service" ;
+  rdfs:comment "A non-tangible offering provided by an organization" ;
+  rdfs:subClassOf :Product .
+
+:PremiumCustomer rdf:type owl:Class ;
+  rdfs:label "Premium Customer" ;
+  rdfs:comment "A high-value customer with special benefits" ;
+  rdfs:subClassOf :Customer .
 
 # Properties
 :produces rdf:type owl:ObjectProperty ;
@@ -39,4 +50,16 @@
   rdfs:domain :Product ;
   rdfs:range xsd:decimal ;
   rdfs:label "has value" ;
-  rdfs:comment "The monetary value of a product" . 
+  rdfs:comment "The monetary value of a product" .
+
+:hasMembership rdf:type owl:DatatypeProperty ;
+  rdfs:domain :PremiumCustomer ;
+  rdfs:range xsd:string ;
+  rdfs:label "has membership" ;
+  rdfs:comment "The type of premium membership" .
+
+:subscribesTo rdf:type owl:ObjectProperty ;
+  rdfs:domain :Customer ;
+  rdfs:range :Service ;
+  rdfs:label "subscribes to" ;
+  rdfs:comment "Indicates a customer subscribes to a service" . 
