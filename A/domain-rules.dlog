@@ -1,0 +1,54 @@
+// Domain rules for project A ontology
+// This file contains advanced logical rules that extend the basic ontology
+
+// Type definitions
+.type Person
+.type Project
+.type Organization
+
+// Relations
+.decl is_person(p: Person)
+.decl is_project(proj: Project)
+.decl is_organization(org: Organization)
+.decl works_on(p: Person, proj: Project)
+.decl member_of(p: Person, org: Organization)
+.decl org_manages(org: Organization, proj: Project)
+.decl project_contributor(p: Person, proj: Project)
+.decl colleague(p1: Person, p2: Person)
+.decl collaborating_orgs(org1: Organization, org2: Organization)
+
+// Core rules
+project_contributor(P, PROJ) :- works_on(P, PROJ).
+
+// Two people are colleagues if they work on the same project
+colleague(P1, P2) :- works_on(P1, PROJ), works_on(P2, PROJ), P1 != P2.
+
+// Two organizations collaborate if they have members working on the same project
+collaborating_orgs(ORG1, ORG2) :- 
+  member_of(P1, ORG1),
+  member_of(P2, ORG2),
+  works_on(P1, PROJ),
+  works_on(P2, PROJ),
+  ORG1 != ORG2.
+
+// If an organization manages a project, its members are contributors to that project
+project_contributor(P, PROJ) :-
+  member_of(P, ORG),
+  org_manages(ORG, PROJ).
+
+// Sample facts
+is_person("Alice").
+is_person("Bob").
+is_person("Charlie").
+is_project("OntologyDevelopment").
+is_project("DataIntegration").
+is_organization("ResearchLab").
+is_organization("University").
+
+works_on("Alice", "OntologyDevelopment").
+works_on("Bob", "OntologyDevelopment").
+works_on("Charlie", "DataIntegration").
+member_of("Alice", "ResearchLab").
+member_of("Bob", "University").
+member_of("Charlie", "ResearchLab").
+org_manages("ResearchLab", "OntologyDevelopment"). 
