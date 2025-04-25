@@ -1,54 +1,82 @@
-// Domain rules for project A ontology
-// This file contains advanced logical rules that extend the basic ontology
+// Enhanced domain rules for Project A
+// This file extends the existing rules with advanced organizational logic
 
 // Type definitions
 .type Person
 .type Project
 .type Organization
+.type Role
+.type Skill
 
 // Relations
-.decl is_person(p: Person)
-.decl is_project(proj: Project)
-.decl is_organization(org: Organization)
-.decl works_on(p: Person, proj: Project)
-.decl member_of(p: Person, org: Organization)
-.decl org_manages(org: Organization, proj: Project)
-.decl project_contributor(p: Person, proj: Project)
-.decl colleague(p1: Person, p2: Person)
-.decl collaborating_orgs(org1: Organization, org2: Organization)
+.decl person(p: Person)
+.decl project(p: Project)
+.decl organization(o: Organization)
+.decl has_role(p: Person, r: Role, proj: Project)
+.decl has_skill(p: Person, s: Skill, level: number)
+.decl project_needs_skill(proj: Project, s: Skill, importance: number)
+.decl skill_compatibility(s1: Skill, s2: Skill, strength: number)
+.decl recommended_for(p: Person, proj: Project, score: number)
+.decl project_leader(p: Person, proj: Project)
+.decl skill_gap(proj: Project, s: Skill)
 
-// Core rules
-project_contributor(P, PROJ) :- works_on(P, PROJ).
+// Rules
+// Project leaders must have the highest skill level relevant to the project
+project_leader(P, PROJ) :-
+  has_role(P, "Leader", PROJ),
+  has_skill(P, S, L),
+  project_needs_skill(PROJ, S, _),
+  L >= 8.
 
-// Two people are colleagues if they work on the same project
-colleague(P1, P2) :- works_on(P1, PROJ), works_on(P2, PROJ), P1 != P2.
+// Recommend people for projects based on their skills
+recommended_for(P, PROJ, SCORE) :-
+  person(P),
+  project(PROJ),
+  SCORE = sum(S_LEVEL * IMP) : {
+    has_skill(P, S, S_LEVEL),
+    project_needs_skill(PROJ, S, IMP)
+  },
+  SCORE > 10.
 
-// Two organizations collaborate if they have members working on the same project
-collaborating_orgs(ORG1, ORG2) :- 
-  member_of(P1, ORG1),
-  member_of(P2, ORG2),
-  works_on(P1, PROJ),
-  works_on(P2, PROJ),
-  ORG1 != ORG2.
+// Identify skill gaps in projects
+skill_gap(PROJ, S) :-
+  project(PROJ),
+  project_needs_skill(PROJ, S, IMP),
+  IMP > 5,
+  !has_skill(_, S, _).
 
-// If an organization manages a project, its members are contributors to that project
-project_contributor(P, PROJ) :-
-  member_of(P, ORG),
-  org_manages(ORG, PROJ).
+// Skill synergy: when certain skills work well together
+skill_compatibility("Programming", "Design", 7).
+skill_compatibility("ProjectManagement", "Leadership", 9).
+skill_compatibility("Research", "Analysis", 8).
 
-// Sample facts
-is_person("Alice").
-is_person("Bob").
-is_person("Charlie").
-is_project("OntologyDevelopment").
-is_project("DataIntegration").
-is_organization("ResearchLab").
-is_organization("University").
+// Sample data
+person("Alice").
+person("Bob").
+person("Charlie").
+person("Diana").
 
-works_on("Alice", "OntologyDevelopment").
-works_on("Bob", "OntologyDevelopment").
-works_on("Charlie", "DataIntegration").
-member_of("Alice", "ResearchLab").
-member_of("Bob", "University").
-member_of("Charlie", "ResearchLab").
-org_manages("ResearchLab", "OntologyDevelopment"). 
+project("WebApp").
+project("DataAnalysis").
+project("OntologyDevelopment").
+
+organization("TechCorp").
+organization("ResearchLab").
+
+has_role("Alice", "Leader", "OntologyDevelopment").
+has_role("Bob", "Developer", "WebApp").
+has_role("Charlie", "Analyst", "DataAnalysis").
+has_role("Diana", "Researcher", "OntologyDevelopment").
+
+has_skill("Alice", "OntologyModeling", 9).
+has_skill("Alice", "Leadership", 7).
+has_skill("Bob", "Programming", 8).
+has_skill("Bob", "Design", 6).
+has_skill("Charlie", "Analysis", 9).
+has_skill("Diana", "Research", 10).
+
+project_needs_skill("WebApp", "Programming", 10).
+project_needs_skill("WebApp", "Design", 8).
+project_needs_skill("DataAnalysis", "Analysis", 10).
+project_needs_skill("OntologyDevelopment", "OntologyModeling", 9).
+project_needs_skill("OntologyDevelopment", "Research", 7). 
