@@ -1,0 +1,80 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix : <http://example.org/ontology/B/mappings#> .
+
+# Ontology Declaration
+:Ontology rdf:type owl:Ontology ;
+  rdfs:label "Semantic Mappings Ontology" ;
+  rdfs:comment "Semantic mappings between ontology B and external ontologies" ;
+  owl:versionInfo "1.0.0" ;
+  dc:creator "GitHub Actions Test Team" ;
+  dc:date "2024-06-03" .
+
+# Mapping between B ontology and external ontologies
+:CustomerMapping rdf:type owl:Class ;
+  rdfs:label "Customer Mapping" ;
+  rdfs:comment "Mapping relationships for the Customer concept" ;
+  rdfs:subClassOf skos:Concept .
+
+:OrganizationMapping rdf:type owl:Class ;
+  rdfs:label "Organization Mapping" ;
+  rdfs:comment "Mapping relationships for the Organization concept" ;
+  rdfs:subClassOf skos:Concept .
+
+:ProductMapping rdf:type owl:Class ;
+  rdfs:label "Product Mapping" ;
+  rdfs:comment "Mapping relationships for the Product concept" ;
+  rdfs:subClassOf skos:Concept .
+
+# Mapping Properties
+:hasExternalEquivalent rdf:type owl:ObjectProperty ;
+  rdfs:label "has external equivalent" ;
+  rdfs:comment "Points to an equivalent concept in an external ontology" .
+
+:hasExternalBroader rdf:type owl:ObjectProperty ;
+  rdfs:label "has external broader" ;
+  rdfs:comment "Points to a broader concept in an external ontology" .
+
+:hasExternalNarrower rdf:type owl:ObjectProperty ;
+  rdfs:label "has external narrower" ;
+  rdfs:comment "Points to a narrower concept in an external ontology" .
+
+# Mapping Instances
+:CustomerToFoafPerson rdf:type :CustomerMapping ;
+  rdfs:label "Customer to FOAF Person Mapping" ;
+  :hasExternalEquivalent foaf:Person ;
+  rdfs:comment "Maps the Customer concept to the FOAF Person concept" .
+
+:OrganizationToFoafOrganization rdf:type :OrganizationMapping ;
+  rdfs:label "Organization to FOAF Organization Mapping" ;
+  :hasExternalEquivalent foaf:Organization ;
+  rdfs:comment "Maps the Organization concept to the FOAF Organization concept" .
+
+:ProductToGoodRelationsProduct rdf:type :ProductMapping ;
+  rdfs:label "Product to GoodRelations ProductOrService Mapping" ;
+  :hasExternalEquivalent <http://purl.org/goodrelations/v1#ProductOrService> ;
+  rdfs:comment "Maps the Product concept to the GoodRelations ProductOrService concept" .
+
+# Additional Metadata
+:mappingAuthority rdf:type owl:DatatypeProperty ;
+  rdfs:label "mapping authority" ;
+  rdfs:comment "The authority who established this mapping" ;
+  rdfs:domain :CustomerMapping ;
+  rdfs:range xsd:string .
+
+:mappingConfidence rdf:type owl:DatatypeProperty ;
+  rdfs:label "mapping confidence" ;
+  rdfs:comment "Confidence level for this mapping (0.0-1.0)" ;
+  rdfs:domain :CustomerMapping ;
+  rdfs:range xsd:decimal .
+
+:mappingDate rdf:type owl:DatatypeProperty ;
+  rdfs:label "mapping date" ;
+  rdfs:comment "When this mapping was established" ;
+  rdfs:domain :CustomerMapping ;
+  rdfs:range xsd:date . 

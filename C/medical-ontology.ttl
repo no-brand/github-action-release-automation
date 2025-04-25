@@ -7,8 +7,8 @@
 # Ontology Declaration
 :Ontology rdf:type owl:Ontology ;
   rdfs:label "Medical Domain Ontology" ;
-  rdfs:comment "An ontology for medical terminology and relationships" ;
-  owl:versionInfo "1.0.0" .
+  rdfs:comment "An ontology for medical terminology and relationships - Updated for testing" ;
+  owl:versionInfo "1.1.0" .
 
 # Classes
 :Disease rdf:type owl:Class ;
@@ -35,6 +35,20 @@
 :Physician rdf:type owl:Class ;
   rdfs:label "Physician" ;
   rdfs:comment "A person qualified to practice medicine" .
+
+:MedicalFacility rdf:type owl:Class ;
+  rdfs:label "Medical Facility" ;
+  rdfs:comment "A place where medical care is provided" .
+
+:Hospital rdf:type owl:Class ;
+  rdfs:label "Hospital" ;
+  rdfs:comment "A health care institution providing treatment with specialized staff and equipment" ;
+  rdfs:subClassOf :MedicalFacility .
+
+:Clinic rdf:type owl:Class ;
+  rdfs:label "Clinic" ;
+  rdfs:comment "A facility for diagnosis and treatment of outpatients" ;
+  rdfs:subClassOf :MedicalFacility .
 
 # Properties
 :hasSymptom rdf:type owl:ObjectProperty ;
@@ -77,4 +91,22 @@
   rdfs:domain owl:Thing ;
   rdfs:range xsd:string ;
   rdfs:label "has name" ;
-  rdfs:comment "The name of an entity" . 
+  rdfs:comment "The name of an entity" .
+
+:worksAt rdf:type owl:ObjectProperty ;
+  rdfs:domain :Physician ;
+  rdfs:range :MedicalFacility ;
+  rdfs:label "works at" ;
+  rdfs:comment "Relates a physician to the facility where they work" .
+
+:admittedTo rdf:type owl:ObjectProperty ;
+  rdfs:domain :Patient ;
+  rdfs:range :Hospital ;
+  rdfs:label "admitted to" ;
+  rdfs:comment "Relates a patient to the hospital where they are admitted" .
+
+:hasCapacity rdf:type owl:DatatypeProperty ;
+  rdfs:domain :MedicalFacility ;
+  rdfs:range xsd:integer ;
+  rdfs:label "has capacity" ;
+  rdfs:comment "The number of patients a facility can accommodate" . 
