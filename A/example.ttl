@@ -6,8 +6,9 @@
 
 # Ontology Declaration
 :Ontology rdf:type owl:Ontology ;
-  rdfs:label "Sample Ontology A" ;
-  rdfs:comment "Example ontology for demonstration purposes" .
+  rdfs:label "Sample Ontology A - Updated" ;
+  rdfs:comment "Example ontology for demonstration purposes" ;
+  owl:versionInfo "2.0.0" .
 
 # Classes
 :Person rdf:type owl:Class ;
@@ -21,6 +22,15 @@
 :Organization rdf:type owl:Class ;
   rdfs:label "Organization" ;
   rdfs:comment "A company, institution, or other formal group" .
+
+:Task rdf:type owl:Class ;
+  rdfs:label "Task" ;
+  rdfs:comment "A specific unit of work within a project" ;
+  rdfs:subClassOf :Project .
+
+:Team rdf:type owl:Class ;
+  rdfs:label "Team" ;
+  rdfs:comment "A group of people working together" .
 
 # Properties
 :hasName rdf:type owl:DatatypeProperty ;
@@ -45,4 +55,22 @@
   rdfs:domain owl:Thing ;
   rdfs:range xsd:string ;
   rdfs:label "has description" ;
-  rdfs:comment "A general description property that can apply to any entity" . 
+  rdfs:comment "A general description property that can apply to any entity" .
+
+:hasDueDate rdf:type owl:DatatypeProperty ;
+  rdfs:domain :Task ;
+  rdfs:range xsd:dateTime ;
+  rdfs:label "has due date" ;
+  rdfs:comment "The deadline by which a task should be completed" .
+
+:hasPriority rdf:type owl:DatatypeProperty ;
+  rdfs:domain :Task ;
+  rdfs:range xsd:integer ;
+  rdfs:label "has priority" ;
+  rdfs:comment "The priority level of a task (1-5, where 1 is highest)" .
+
+:partOf rdf:type owl:ObjectProperty ;
+  rdfs:domain :Team ;
+  rdfs:range :Organization ;
+  rdfs:label "part of" ;
+  rdfs:comment "Indicates a team is part of a larger organization" . 
