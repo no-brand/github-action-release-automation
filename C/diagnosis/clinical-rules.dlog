@@ -1,0 +1,75 @@
+// Clinical reasoning rules for medical diagnosis
+// This file contains diagnostic inference rules based on the medical ontology
+
+// Type definitions
+.type Disease
+.type Symptom
+.type Patient
+.type Medication
+.type Physician
+.type Treatment
+
+// Relations
+.decl has_symptom(d: Disease, s: Symptom)
+.decl patient_has_symptom(p: Patient, s: Symptom)
+.decl patient_diagnosed_with(p: Patient, d: Disease)
+.decl patient_treated_by(p: Patient, phys: Physician)
+.decl symptom_severity(p: Patient, s: Symptom, severity: number)
+.decl medication_treats(m: Medication, d: Disease)
+.decl treatment_indicated(p: Patient, t: Treatment)
+.decl disease_probability(p: Patient, d: Disease, probability: number)
+.decl emergency_condition(p: Patient)
+
+// Diagnostic rules
+
+// If a patient has most symptoms of a disease, they likely have the disease
+patient_diagnosed_with(P, D) :- 
+  patient_has_symptom(P, S1),
+  patient_has_symptom(P, S2),
+  patient_has_symptom(P, S3),
+  has_symptom(D, S1),
+  has_symptom(D, S2),
+  has_symptom(D, S3),
+  S1 != S2, S2 != S3, S1 != S3.
+
+// High severity symptoms (>7) indicate emergency conditions
+emergency_condition(P) :- 
+  patient_has_symptom(P, S),
+  symptom_severity(P, S, SEV),
+  SEV > 7.
+
+// Determine appropriate treatments based on diagnosis
+treatment_indicated(P, T) :-
+  patient_diagnosed_with(P, D),
+  medication_treats(T, D).
+
+// Calculate disease probability based on symptom count
+disease_probability(P, D, COUNT * 20) :-
+  COUNT = count : { patient_has_symptom(P, S), has_symptom(D, S) },
+  COUNT > 0.
+
+// Sample data
+has_symptom("Influenza", "Fever").
+has_symptom("Influenza", "Cough").
+has_symptom("Influenza", "Fatigue").
+has_symptom("Influenza", "BodyAche").
+has_symptom("Pneumonia", "Fever").
+has_symptom("Pneumonia", "Cough").
+has_symptom("Pneumonia", "DifficultyBreathing").
+has_symptom("CommonCold", "Cough").
+has_symptom("CommonCold", "RunnyNose").
+
+medication_treats("Oseltamivir", "Influenza").
+medication_treats("Antibiotics", "Pneumonia").
+medication_treats("Decongestant", "CommonCold").
+
+patient_has_symptom("Patient1", "Fever").
+patient_has_symptom("Patient1", "Cough").
+patient_has_symptom("Patient1", "Fatigue").
+symptom_severity("Patient1", "Fever", 5).
+symptom_severity("Patient1", "Cough", 3).
+
+patient_has_symptom("Patient2", "Fever").
+patient_has_symptom("Patient2", "Cough").
+patient_has_symptom("Patient2", "DifficultyBreathing").
+symptom_severity("Patient2", "DifficultyBreathing", 8). 

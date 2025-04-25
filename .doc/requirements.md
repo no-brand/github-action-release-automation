@@ -31,11 +31,11 @@ This document includes requirements and project structure for collaboration and 
 |---------------|-------------------------------------------------------------------|
 | `SUB_PROJECT` | First-level folder name where changed files are located           |
 | `TODAY`       | Current date (yyyyMMdd)                                           |
-| `REVISION`    | Number of existing tags with `v{SUB_PROJECT}-{TODAY}-` prefix + 1 |
+| `REVISION`    | Number of existing tags with `{SUB_PROJECT}-v{TODAY}-` prefix + 1 |
 
 ### 🏷 Tag Creation
-- Format: `v{SUB_PROJECT}-{TODAY}-{REVISION}`
-- Example: `vA-20250425-1`
+- Format: `{SUB_PROJECT}-v{TODAY}-{REVISION}`
+- Example: `A-v20250425-1`
 
 ### 🚀 Release Creation
 - **Release Artifact**:
@@ -58,7 +58,7 @@ This document includes requirements and project structure for collaboration and 
     ```
 
 ## 4. Release Description Example
-Ontology Release: vA-20250420-1
+Ontology Release: A-v20250420-1
 Date: 20250420
 Revision: 1
 

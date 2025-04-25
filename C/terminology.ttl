@@ -1,0 +1,91 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix : <http://example.org/ontology/MedicalTerminology#> .
+
+# Ontology Declaration
+:Ontology rdf:type owl:Ontology ;
+  rdfs:label "Medical Terminology Ontology" ;
+  rdfs:comment "A controlled vocabulary for medical terms" ;
+  owl:versionInfo "1.0.0" .
+
+# Concept Scheme
+:MedicalTerminology rdf:type skos:ConceptScheme ;
+  rdfs:label "Medical Terminology" ;
+  rdfs:comment "SKOS concept scheme for standardized medical terminology" .
+
+# Top Concepts
+:Disease rdf:type skos:Concept ;
+  skos:prefLabel "Disease"@en ;
+  skos:altLabel "Disorder"@en ;
+  skos:altLabel "Illness"@en ;
+  skos:definition "A disorder of structure or function in a human, animal, or plant"@en ;
+  skos:topConceptOf :MedicalTerminology .
+
+:Symptom rdf:type skos:Concept ;
+  skos:prefLabel "Symptom"@en ;
+  skos:altLabel "Clinical sign"@en ;
+  skos:definition "A physical or mental feature which indicates a condition of disease"@en ;
+  skos:topConceptOf :MedicalTerminology .
+
+:Medication rdf:type skos:Concept ;
+  skos:prefLabel "Medication"@en ;
+  skos:altLabel "Drug"@en ;
+  skos:altLabel "Pharmaceutical"@en ;
+  skos:definition "A drug or other form of medicine that is used to treat or prevent disease"@en ;
+  skos:topConceptOf :MedicalTerminology .
+
+# Disease Concepts
+:Influenza rdf:type skos:Concept ;
+  skos:prefLabel "Influenza"@en ;
+  skos:altLabel "Flu"@en ;
+  skos:definition "A contagious respiratory illness caused by influenza viruses"@en ;
+  skos:broader :Disease .
+
+:Pneumonia rdf:type skos:Concept ;
+  skos:prefLabel "Pneumonia"@en ;
+  skos:definition "Inflammation of the tissue in one or both lungs, usually caused by bacterial infection"@en ;
+  skos:broader :Disease .
+
+:CommonCold rdf:type skos:Concept ;
+  skos:prefLabel "Common Cold"@en ;
+  skos:altLabel "Cold"@en ;
+  skos:definition "A viral infectious disease of the upper respiratory tract"@en ;
+  skos:broader :Disease .
+
+# Symptom Concepts
+:Fever rdf:type skos:Concept ;
+  skos:prefLabel "Fever"@en ;
+  skos:altLabel "Pyrexia"@en ;
+  skos:definition "An abnormally high body temperature"@en ;
+  skos:broader :Symptom .
+
+:Cough rdf:type skos:Concept ;
+  skos:prefLabel "Cough"@en ;
+  skos:definition "A sudden, audible expulsion of air from the lungs"@en ;
+  skos:broader :Symptom .
+
+:DifficultyBreathing rdf:type skos:Concept ;
+  skos:prefLabel "Difficulty Breathing"@en ;
+  skos:altLabel "Dyspnea"@en ;
+  skos:definition "Shortness of breath or difficulty breathing"@en ;
+  skos:broader :Symptom .
+
+# Medication Concepts
+:Antibiotic rdf:type skos:Concept ;
+  skos:prefLabel "Antibiotic"@en ;
+  skos:definition "A medicine that inhibits the growth of or destroys bacteria"@en ;
+  skos:broader :Medication .
+
+:Antiviral rdf:type skos:Concept ;
+  skos:prefLabel "Antiviral"@en ;
+  skos:definition "A medication used to treat viral infections"@en ;
+  skos:broader :Medication .
+
+:Analgesic rdf:type skos:Concept ;
+  skos:prefLabel "Analgesic"@en ;
+  skos:altLabel "Pain reliever"@en ;
+  skos:definition "A medication used to relieve pain"@en ;
+  skos:broader :Medication . 

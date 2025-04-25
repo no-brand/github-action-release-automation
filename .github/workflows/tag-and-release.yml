@@ -71,7 +71,7 @@ jobs:
           TODAY="${{ needs.setup.outputs.today }}"
           
           # Count existing tags with the same prefix
-          PREFIX="v${SUB_PROJECT}-${TODAY}-"
+          PREFIX="${SUB_PROJECT}-v${TODAY}-"
           TAG_COUNT=$(git tag -l "${PREFIX}*" | wc -l)
           REVISION=$((TAG_COUNT + 1))
           
