@@ -1,0 +1,80 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <http://example.org/ontology/Medical#> .
+
+# Ontology Declaration
+:Ontology rdf:type owl:Ontology ;
+  rdfs:label "Medical Domain Ontology" ;
+  rdfs:comment "An ontology for medical terminology and relationships" ;
+  owl:versionInfo "1.0.0" .
+
+# Classes
+:Disease rdf:type owl:Class ;
+  rdfs:label "Disease" ;
+  rdfs:comment "A disorder of structure or function in a human, animal, or plant" .
+
+:Symptom rdf:type owl:Class ;
+  rdfs:label "Symptom" ;
+  rdfs:comment "A physical or mental feature which indicates a condition of disease" .
+
+:Treatment rdf:type owl:Class ;
+  rdfs:label "Treatment" ;
+  rdfs:comment "Medical care given to a patient for an illness or injury" .
+
+:Medication rdf:type owl:Class ;
+  rdfs:label "Medication" ;
+  rdfs:comment "A drug or other form of medicine that is used to treat or prevent disease" ;
+  rdfs:subClassOf :Treatment .
+
+:Patient rdf:type owl:Class ;
+  rdfs:label "Patient" ;
+  rdfs:comment "A person receiving medical treatment" .
+
+:Physician rdf:type owl:Class ;
+  rdfs:label "Physician" ;
+  rdfs:comment "A person qualified to practice medicine" .
+
+# Properties
+:hasSymptom rdf:type owl:ObjectProperty ;
+  rdfs:domain :Disease ;
+  rdfs:range :Symptom ;
+  rdfs:label "has symptom" ;
+  rdfs:comment "Relates a disease to its symptoms" .
+
+:treatedWith rdf:type owl:ObjectProperty ;
+  rdfs:domain :Disease ;
+  rdfs:range :Treatment ;
+  rdfs:label "treated with" ;
+  rdfs:comment "Relates a disease to its treatments" .
+
+:diagnosedWith rdf:type owl:ObjectProperty ;
+  rdfs:domain :Patient ;
+  rdfs:range :Disease ;
+  rdfs:label "diagnosed with" ;
+  rdfs:comment "Relates a patient to their diagnosed diseases" .
+
+:treatedBy rdf:type owl:ObjectProperty ;
+  rdfs:domain :Patient ;
+  rdfs:range :Physician ;
+  rdfs:label "treated by" ;
+  rdfs:comment "Relates a patient to their treating physicians" .
+
+:prescribes rdf:type owl:ObjectProperty ;
+  rdfs:domain :Physician ;
+  rdfs:range :Medication ;
+  rdfs:label "prescribes" ;
+  rdfs:comment "Relates a physician to medications they prescribe" .
+
+:hasSeverity rdf:type owl:DatatypeProperty ;
+  rdfs:domain :Symptom ;
+  rdfs:range xsd:integer ;
+  rdfs:label "has severity" ;
+  rdfs:comment "The severity level of a symptom on a scale from 1-10" .
+
+:hasName rdf:type owl:DatatypeProperty ;
+  rdfs:domain owl:Thing ;
+  rdfs:range xsd:string ;
+  rdfs:label "has name" ;
+  rdfs:comment "The name of an entity" . 
