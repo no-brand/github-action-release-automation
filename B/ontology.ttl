@@ -7,8 +7,8 @@
 # Ontology Declaration
 :Ontology rdf:type owl:Ontology ;
   rdfs:label "Sample Ontology B" ;
-  rdfs:comment "Example ontology for domain B" ;
-  owl:versionInfo "1.1.0" .
+  rdfs:comment "Example ontology for domain B - Updated for testing" ;
+  owl:versionInfo "1.2.0" .
 
 # Classes
 :Organization rdf:type owl:Class ;
@@ -31,6 +31,16 @@
 :PremiumCustomer rdf:type owl:Class ;
   rdfs:label "Premium Customer" ;
   rdfs:comment "A high-value customer with special benefits" ;
+  rdfs:subClassOf :Customer .
+
+:SubscriptionService rdf:type owl:Class ;
+  rdfs:label "Subscription Service" ;
+  rdfs:comment "A service provided on a recurring basis" ;
+  rdfs:subClassOf :Service .
+
+:EnterpriseCustomer rdf:type owl:Class ;
+  rdfs:label "Enterprise Customer" ;
+  rdfs:comment "A business or organization that is a customer" ;
   rdfs:subClassOf :Customer .
 
 # Properties
@@ -62,4 +72,22 @@
   rdfs:domain :Customer ;
   rdfs:range :Service ;
   rdfs:label "subscribes to" ;
-  rdfs:comment "Indicates a customer subscribes to a service" . 
+  rdfs:comment "Indicates a customer subscribes to a service" .
+
+:renewalFrequency rdf:type owl:DatatypeProperty ;
+  rdfs:domain :SubscriptionService ;
+  rdfs:range xsd:string ;
+  rdfs:label "renewal frequency" ;
+  rdfs:comment "How often the subscription renews (monthly, annually, etc.)" .
+
+:hasEmployeeCount rdf:type owl:DatatypeProperty ;
+  rdfs:domain :EnterpriseCustomer ;
+  rdfs:range xsd:integer ;
+  rdfs:label "has employee count" ;
+  rdfs:comment "The number of employees in the enterprise customer" .
+
+:hasPriority rdf:type owl:DatatypeProperty ;
+  rdfs:domain :Customer ;
+  rdfs:range xsd:integer ;
+  rdfs:label "has priority" ;
+  rdfs:comment "The priority level of the customer for support purposes" . 
